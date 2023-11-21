@@ -158,21 +158,15 @@ def Government(code, driver,output_folder):
                     
                 class_names = curr_user_step.get_attribute("class").split()
                 if class_names[2] == "active3":
-                    step = class_names[1]
-                    step +="b"
+                    step = class_names[1][4:]
+                    step +="B"
                 elif class_names[2] == "active1":
-                    step = class_names[1]
-                    step +="a"
+                    step = class_names[1][4:]
+                    step +="A"
             
             except Exception as e:
                 print("An error occurred: {e}")      
-                
-        else:
-            step = "28"
-            text = ""
-            note = "Code Not Valid"
-        
-        
+      
         info = {
             "code": code,
             "step": step,
@@ -190,9 +184,9 @@ def Government(code, driver,output_folder):
             "text": "Error",
             "station": ""
         }
-    print("-----------------------------------------------------------")
+    print("--------------------------------------------------------------------")
     print("script finished, output: ", info)
-    print("-----------------------------------------------------------")
+    print("--------------------------------------------------------------------")
 
     return info
     
@@ -215,14 +209,14 @@ with open(input_file_path, "r", encoding="cp437", errors='ignore') as input_file
             with open(output_folder+r"/output.csv", "a",encoding="utf-8") as file:
                 writer = csv.writer(file)
                 writer.writerow([result['code'], result['step'], result['step_title'], result['text'], result['station']])
-            api(result)
+            # api(result)
         else :
             second_result = Government(code, driver,output_folder)
             if result['step'] != "":
                 with open(output_folder+r"/output.csv", "a",encoding="utf-8") as file:
                     writer = csv.writer(file)
                     writer.writerow([result['code'], result['step'], result['step_title'], result['text'], result['station']])
-                api(result)
+                # api(result)
 
             else:
                 continue
