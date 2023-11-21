@@ -180,7 +180,7 @@ def Government(code, driver,output_folder):
             "text": note,
             "station": OfficeStation.text
         }
-        # api(info)
+        
         
     except Exception as e:
         info = {
@@ -193,9 +193,9 @@ def Government(code, driver,output_folder):
     print("-----------------------------------------------------------")
     print("script finished, output: ", info)
     print("-----------------------------------------------------------")
-    with open(output_folder+r"/output.csv", "a",encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow([info['code'], info['step'], info['step_title'], info['text'], info['station']])
+
+    return info
+    
 
 
 input_file_path = input("Enter input file path : ")
@@ -209,5 +209,22 @@ with open(input_file_path, "r", encoding="cp437", errors='ignore') as input_file
     for code in code:
         if code==0 or code=="0":
             continue
-        Government(code, driver,output_folder)
+        result = Government(code, driver,output_folder)
+
+        if result['step'] != "":
+            with open(output_folder+r"/output.csv", "a",encoding="utf-8") as file:
+                writer = csv.writer(file)
+                writer.writerow([result['code'], result['step'], result['step_title'], result['text'], result['station']])
+            api(result)
+        else :
+            second_result = Government(code, driver,output_folder)
+            if result['step'] != "":
+                with open(output_folder+r"/output.csv", "a",encoding="utf-8") as file:
+                    writer = csv.writer(file)
+                    writer.writerow([result['code'], result['step'], result['step_title'], result['text'], result['station']])
+                api(result)
+
+            else:
+                continue
+
 # code_input = "9605-1349-2252"
