@@ -2,8 +2,12 @@ import base64
 import csv
 import json
 import os
+import smtplib
 import sys
 import time
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 import requests
 import undetected_chromedriver as uc
 from selenium import webdriver
@@ -14,9 +18,17 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from twocaptcha import TwoCaptcha
-from webdriver_manager.chrome import ChromeDriverManager
+
+# pythongovernmentscript123! ---> password for email
+# ridx zani sdxa hxrb  ---> app password
 
 
+server = smtplib.SMTP('smtp.gmail.com', 587)
+server.starttls()
+
+server.login("pythongovernmentscript@gmail.com", "ridx zani sdxa hxrb")
+
+ 
 def api(data):
     webhook_url_2 = "https://hook.eu1.make.com/g3at8whhmxefm4n26ojkgncdbrrbe4jh"
     try:
@@ -219,6 +231,7 @@ with open(input_file_path, "r", encoding="cp437", errors='ignore') as input_file
                 # api(result)
 
             else:
+                server.sendmail("pythongovernmentscript@gmail.com", "almogpassportogo@gmail.com", "error with fetching data for status code: " + result['code'])
                 continue
 
 # code_input = "9605-1349-2252"
