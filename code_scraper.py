@@ -18,6 +18,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from twocaptcha import TwoCaptcha
+from webdriver_manager.chrome import ChromeDriverManager
 
 # pythongovernmentscript123! ---> password for email
 # ridx zani sdxa hxrb  ---> app password
