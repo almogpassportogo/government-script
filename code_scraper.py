@@ -24,12 +24,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 # ridx zani sdxa hxrb  ---> app password
 
 
-server = smtplib.SMTP('smtp.gmail.com', 587)
+server = smtplib.SMTP("smtp.gmail.com", 587)
 server.starttls()
 
 server.login("pythongovernmentscript@gmail.com", "ridx zani sdxa hxrb")
 
- 
+
 def api(data):
     webhook_url_2 = "https://hook.eu1.make.com/g3at8whhmxefm4n26ojkgncdbrrbe4jh"
     try:
@@ -49,27 +49,28 @@ def solve_captcha():
     # library url: https://github.com/My-kal/2Captcha
     result = None
 
-    sitekey="6LeDhLIZAAAAAA0Hy0VLO7wOeB5aNIibYM-aQ2_3"
-    api_key = 'ad836997350d2f9ea35e60f0eb512567'
+    sitekey = "6LeDhLIZAAAAAA0Hy0VLO7wOeB5aNIibYM-aQ2_3"
+    api_key = "ad836997350d2f9ea35e60f0eb512567"
     solver = TwoCaptcha(api_key)
     balance = solver.balance()
     try:
         result = solver.recaptcha(
-            sitekey=sitekey,
-            url='https://nacionalidade.justica.gov.pt/'
+            sitekey=sitekey, url="https://nacionalidade.justica.gov.pt/"
         )
 
     except Exception as e:
         print("Failed to solve captcha")
         sys.exit(e)
-        
+
     print(result)
-    return result['code']
+    return result["code"]
 
 
 def start_browser():
     options = Options()
-    options.add_argument('--disable-blink-features=AutomationControlled')  # Disables the webdriver flag
+    options.add_argument(
+        "--disable-blink-features=AutomationControlled"
+    )  # Disables the webdriver flag
     # options.add_argument("--disable-web-security")  # disable same-origin policy
     options.add_argument("--allow-running-insecure-content")
     options.add_argument("--no-sandbox")  # Bypass OS-level security, VERY UNSAFE
@@ -83,20 +84,24 @@ def start_browser():
     prefs = {
         "translate": {"enabled": "true"},
         "translate_blocked": "false",
-        "translate_whitelists": {"fr": "en"}
+        "translate_whitelists": {"fr": "en"},
     }
     options.add_experimental_option("prefs", prefs)
 
-    options.add_argument(r'--load-extension=' + os.getcwd() + r'\extensions\3.3.4_0_1')
+    options.add_argument(r"--load-extension=" + os.getcwd() + r"\extensions\3.3.4_0_1")
     # options.add_argument(r"--load-extension=C:\Users\kk\Downloads\scrapit_2021\3.3.4_0")
     # input("load ext ")
     # use the derived Chrome class that handles prefs
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=options)
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()), options=options
+    )
     time.sleep(2)
     driver.get("https://nacionalidade.justica.gov.pt/")
     time.sleep(1)
     driver.switch_to.window(driver.window_handles[0])
-    driver.get("chrome-extension://ifibfemgeogfhoebkmokieepdoobkbpo/options/options.html")
+    driver.get(
+        "chrome-extension://ifibfemgeogfhoebkmokieepdoobkbpo/options/options.html"
+    )
     time.sleep(2)
     driver.find_element("name", "apiKey").send_keys("ad836997350d2f9ea35e60f0eb512567")
     time.sleep(2)
@@ -105,7 +110,9 @@ def start_browser():
     driver.switch_to.alert.accept()
     # self.driver.find_element("tag name","body").send_keys(Keys.ENTER)
     time.sleep(2)
-    for e in driver.find_elements("xpath", "//div[@class='switch']//input[contains(@name,'auto')]")[:4]:
+    for e in driver.find_elements(
+        "xpath", "//div[@class='switch']//input[contains(@name,'auto')]"
+    )[:4]:
         action = ActionChains(driver)
         action.move_to_element(e).click().perform()
         time.sleep(0.7)
@@ -114,105 +121,113 @@ def start_browser():
     return driver
 
 
-def Government(code, driver,output_folder):
+class unknownStepException(Exception):
+    pass
+
+
+def Government(code, driver, output_folder):
     try:
         driver.get("https://nacionalidade.justica.gov.pt/")
         time.sleep(3)
-        code_input = driver.find_element(By.XPATH, '//input[@placeholder="xxxx-xxxx-xxxx"]')
+        code_input = driver.find_element(
+            By.XPATH, '//input[@placeholder="xxxx-xxxx-xxxx"]'
+        )
         code_input.send_keys(code)
-        # Wait for the elements with the specified condition
-        # wait = WebDriverWait(driver, 120) ----> this is the original wait time
-        # result = solve_captcha()
-        # driver.find_element(By.XPATH,
-        #     "//textarea[@class='g-recaptcha-response']").click()
-        
-        # driver.find_element(By.XPATH,
-        #     "//textarea[@class='g-recaptcha-response']").send_keys(result)
-        # captcha.send_keys(result)
-        
-        wait = WebDriverWait(driver, 40)
-        
-        time.sleep(2)
-          
-        steps = wait.until(EC.presence_of_all_elements_located(
-            (By.XPATH,
-            "//section[@class='step-indicator']/div[contains(@class,'step')]")))
-        
-        time.sleep(2)
-        notes = wait.until(EC.presence_of_all_elements_located(
-            (By.XPATH,
-            "(//div[@class='container'])[3]")))
-        
-        OfficeStation = driver.find_element(By.CSS_SELECTOR, "body > div:first-child > div:nth-child(2)")
-            
-        note = notes[0].text.casefold()
-        
-        if len(steps) == 7:
-            try:
-                
-                last_active3 = None
-                last_active2 = None
-                last_active1 = None
-                curr_user_step = None
-                for step in reversed(steps):
-                    if "active3" in step.get_attribute("class"):
-                        last_active3 = step
-                        step_text = step.text[2:]
-                        break
-                    elif "active1" in step.get_attribute("class"):
-                        last_active1 = step
-                        step_text = step.text[2:]
-                        break
-                    elif "active2" in step.get_attribute("class"):
-                        last_active2 = step
-                        step_text = step.text[2:]
-                        break
 
-                if last_active3 is not None:
-                    curr_user_step =  last_active3
-                elif last_active1 is not None:
-                    curr_user_step = last_active1 
-                elif last_active2 is not None:
-                    curr_user_step = last_active2 
-                
-                    
-                class_names = curr_user_step.get_attribute("class").split()
-                if class_names[2] == "active3":
-                    step = class_names[1][4:]
-                    step +="B"
-                elif class_names[2] == "active1":
-                    step = class_names[1][4:]
-                    step +="A"
-                elif class_names[2] == "active2":
-                    step = class_names[1][4:]
-                    step +="N"
-            
-            except Exception as e:
-                print("An error occurred: {e}")      
-      
+        wait = WebDriverWait(driver, 40)
+
+        time.sleep(2)
+        steps = wait.until(
+            EC.presence_of_all_elements_located(
+                (
+                    By.XPATH,
+                    "//section[@class='step-indicator']/div[contains(@class,'step')]",
+                )
+            )
+        )
+
+        time.sleep(2)
+        notes = wait.until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, "(//div[@class='container'])[3]")
+            )
+        )
+
+        OfficeStation = driver.find_element(
+            By.CSS_SELECTOR, "body > div:first-child > div:nth-child(2)"
+        )
+
+        note = notes[0].text.casefold()
+
+        last_active3 = None
+        last_active2 = None
+        last_active1 = None
+        step_text = ""
+        curr_user_step = None
+        for step in reversed(steps):
+            if "active3" in step.get_attribute("class"):
+                last_active3 = step
+                step_text = step.text[2:]
+                break
+            elif "active1" in step.get_attribute("class"):
+                last_active1 = step
+                step_text = step.text[2:]
+                break
+            elif "active2" in step.get_attribute("class"):
+                last_active2 = step
+                step_text = step.text[2:]
+                break
+
+        if last_active1 == None and last_active2 == None and last_active3 == None:
+            raise unknownStepException("An error occurred", {"code": "unknown step"})
+
+        if last_active3 is not None:
+            curr_user_step = last_active3
+        elif last_active1 is not None:
+            curr_user_step = last_active1
+        elif last_active2 is not None:
+            curr_user_step = last_active2
+
+        class_names = curr_user_step.get_attribute("class").split()
+        if class_names[2] == "active3":
+            step = class_names[1][4:]
+            step += "B"
+        elif class_names[2] == "active1":
+            step = class_names[1][4:]
+            step += "A"
+        elif class_names[2] == "active2":
+            step = class_names[1][4:]
+            step += "N"
+
         info = {
             "code": code,
             "step": step,
             "step_title": step_text,
             "text": note,
-            "station": OfficeStation.text
+            "station": OfficeStation.text,
         }
-        
-        
+    except unknownStepException as e:
+        info = {
+            "code": code,
+            "step": "unknown step detected",
+            "step_title": "",
+            "text": "Error",
+            "station": "",
+        }
     except Exception as e:
         info = {
             "code": code,
             "step": "",
             "step_title": "",
             "text": "Error",
-            "station": ""
+            "station": "",
         }
+
     print("--------------------------------------------------------------------")
     print("script finished, output: ", info)
     print("--------------------------------------------------------------------")
 
     return info
-    
 
 
 input_file_path = input("Enter input file path : ")
@@ -220,46 +235,92 @@ input_file_path = input("Enter input file path : ")
 output_folder = input("Enter output folder path : ")
 driver = start_browser()
 
+
 def keep_numbers_and_dash(s):
     result = ""
     for char in s:
-        if char.isdigit() or char == '-':
+        if char.isdigit() or char == "-":
             result += char
     return result
 
-with open(input_file_path, "r", encoding="cp437", errors='ignore') as input_file:
+
+with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file:
     code = [code.strip("\n") for code in input_file.readlines()]
     for code in code:
-        if code==0 or code=="0":
+        if code == 0 or code == "0":
             continue
 
         code = keep_numbers_and_dash(code)
-        result = Government(code, driver,output_folder)
+        # first attempt
+        result = Government(code, driver, output_folder)
 
-        if result['step'] != "":
-            with open(output_folder+r"/output.csv", "a",encoding="utf-8") as file:
+        if result["step"] != "":
+            with open(
+                output_folder + r"/output.csv", "a", encoding="utf-8", newline=""
+            ) as file:
                 writer = csv.writer(file)
-                writer.writerow([result['code'], result['step'], result['step_title'], result['text'], result['station']])
+                writer.writerow(
+                    [
+                        result["code"],
+                        result["step"],
+                        result["step_title"],
+                        result["text"],
+                        result["station"],
+                    ]
+                )
             # api(result)
-        else :
-            second_result = Government(code, driver,output_folder)
-            if result['step'] != "":
-                with open(output_folder+r"/output.csv", "a",encoding="utf-8") as file:
+        else:
+            # second attempt
+            second_result = Government(code, driver, output_folder)
+            if result["step"] != "":
+                with open(
+                    output_folder + r"/output.csv", "a", encoding="utf-8", newline=""
+                ) as file:
                     writer = csv.writer(file)
-                    writer.writerow([result['code'], result['step'], result['step_title'], result['text'], result['station']])
+                    writer.writerow(
+                        [
+                            result["code"],
+                            result["step"],
+                            result["step_title"],
+                            result["text"],
+                            result["station"],
+                        ]
+                    )
                 # api(result)
 
             else:
+                # an error has accured, send email and write new line with error.
                 try:
+                    with open(
+                        output_folder + r"/output.csv",
+                        "a",
+                        encoding="utf-8",
+                        newline="",
+                    ) as file:
+                        writer = csv.writer(file)
+                        writer.writerow(
+                            [
+                                result["code"],
+                                result["step"],
+                                result["step_title"],
+                                result["text"],
+                                result["station"],
+                            ]
+                        )
                     msg = MIMEMultipart()
-                    msg['From'] = "pythongovernmentscript@gmail.com"
-                    msg['To'] = "almogpassportogo@gmail.com"
-                    msg['Subject'] = "error with fetching status"
+
+                    msg["From"] = "pythongovernmentscript@gmail.com"
+                    msg["To"] = "almogpassportogo@gmail.com"
+                    msg["Subject"] = "error with fetching status"
 
                     body = "error with fetching data for status code: " + code
-                    msg.attach(MIMEText(body, 'plain'))
-                    server.sendmail("pythongovernmentscript@gmail.com", "almogpassportogo@gmail.com", msg.as_string())
-                
+                    msg.attach(MIMEText(body, "plain"))
+                    server.sendmail(
+                        "pythongovernmentscript@gmail.com",
+                        "almogpassportogo@gmail.com",
+                        msg.as_string(),
+                    )
+
                 except Exception as e:
                     print("error with fetching data for status code: " + code)
                     print("error with sending email")
