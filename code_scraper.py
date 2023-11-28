@@ -18,6 +18,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from twocaptcha import TwoCaptcha
+from webdriver_manager.chrome import ChromeDriverManager
 
 # pythongovernmentscript123! ---> password for email
 # ridx zani sdxa hxrb  ---> app password
@@ -114,11 +115,11 @@ def start_browser():
 
 
 def Government(code, driver,output_folder):
-    driver.get("https://nacionalidade.justica.gov.pt/")
-    time.sleep(3)
-    code_input = driver.find_element(By.XPATH, '//input[@placeholder="xxxx-xxxx-xxxx"]')
-    code_input.send_keys(code)
     try:
+        driver.get("https://nacionalidade.justica.gov.pt/")
+        time.sleep(3)
+        code_input = driver.find_element(By.XPATH, '//input[@placeholder="xxxx-xxxx-xxxx"]')
+        code_input.send_keys(code)
         # Wait for the elements with the specified condition
         # wait = WebDriverWait(driver, 120) ----> this is the original wait time
         # result = solve_captcha()
@@ -150,6 +151,7 @@ def Government(code, driver,output_folder):
             try:
                 
                 last_active3 = None
+                last_active2 = None
                 last_active1 = None
                 curr_user_step = None
                 for step in reversed(steps):
@@ -161,11 +163,17 @@ def Government(code, driver,output_folder):
                         last_active1 = step
                         step_text = step.text[2:]
                         break
+                    elif "active2" in step.get_attribute("class"):
+                        last_active2 = step
+                        step_text = step.text[2:]
+                        break
 
                 if last_active3 is not None:
                     curr_user_step =  last_active3
                 elif last_active1 is not None:
                     curr_user_step = last_active1 
+                elif last_active2 is not None:
+                    curr_user_step = last_active2 
                 
                     
                 class_names = curr_user_step.get_attribute("class").split()
@@ -175,6 +183,9 @@ def Government(code, driver,output_folder):
                 elif class_names[2] == "active1":
                     step = class_names[1][4:]
                     step +="A"
+                elif class_names[2] == "active2":
+                    step = class_names[1][4:]
+                    step +="N"
             
             except Exception as e:
                 print("An error occurred: {e}")      
@@ -209,12 +220,20 @@ input_file_path = input("Enter input file path : ")
 output_folder = input("Enter output folder path : ")
 driver = start_browser()
 
+def keep_numbers_and_dash(s):
+    result = ""
+    for char in s:
+        if char.isdigit() or char == '-':
+            result += char
+    return result
 
 with open(input_file_path, "r", encoding="cp437", errors='ignore') as input_file:
     code = [code.strip("\n") for code in input_file.readlines()]
     for code in code:
         if code==0 or code=="0":
             continue
+
+        code = keep_numbers_and_dash(code)
         result = Government(code, driver,output_folder)
 
         if result['step'] != "":
@@ -231,7 +250,19 @@ with open(input_file_path, "r", encoding="cp437", errors='ignore') as input_file
                 # api(result)
 
             else:
-                server.sendmail("pythongovernmentscript@gmail.com", "almogpassportogo@gmail.com", "error with fetching data for status code: " + result['code'])
+                try:
+                    msg = MIMEMultipart()
+                    msg['From'] = "pythongovernmentscript@gmail.com"
+                    msg['To'] = "almogpassportogo@gmail.com"
+                    msg['Subject'] = "error with fetching status"
+
+                    body = "error with fetching data for status code: " + code
+                    msg.attach(MIMEText(body, 'plain'))
+                    server.sendmail("pythongovernmentscript@gmail.com", "almogpassportogo@gmail.com", msg.as_string())
+                
+                except Exception as e:
+                    print("error with fetching data for status code: " + code)
+                    print("error with sending email")
                 continue
 
 # code_input = "9605-1349-2252"
