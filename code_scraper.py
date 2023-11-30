@@ -268,7 +268,7 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                         result["station"],
                     ]
                 )
-            # api(result)
+            api(result)
         else:
             # second attempt
             second_result = Government(code, driver, output_folder)
@@ -286,7 +286,7 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                             result["station"],
                         ]
                     )
-                # api(result)
+                api(result)
 
             else:
                 # an error has accured, send email and write new line with error.
