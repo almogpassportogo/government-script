@@ -7,7 +7,7 @@ import sys
 import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
+import re
 import requests
 import undetected_chromedriver as uc
 from selenium import webdriver
@@ -23,12 +23,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 # pythongovernmentscript123! ---> password for email
 # ridx zani sdxa hxrb  ---> app password
 
-
 server = smtplib.SMTP("smtp.gmail.com", 587)
 server.starttls()
 
 server.login("pythongovernmentscript@gmail.com", "ridx zani sdxa hxrb")
-
 
 def api(data):
     webhook_url_2 = "https://hook.eu1.make.com/g3at8whhmxefm4n26ojkgncdbrrbe4jh"
@@ -124,8 +122,17 @@ def start_browser():
 class unknownStepException(Exception):
     pass
 
+def contains_date(text):
+    # Regular expression pattern for date in MM/DD/YYYY format
+    date_pattern = r'\b(?:0[1-9]|1[0-2])/(?:0[1-9]|[12][0-9]|3[01])/(?:19|20\d{2})\b'
+    
+    # Search for the pattern in the text
+    match = re.search(date_pattern, text)
+    
+    # Return True if a match is found, otherwise False
+    return match is not None
 
-def Government(code, driver, output_folder):
+def Government(code, driver, output_folder, exception_counter):
     try:
         driver.get("https://nacionalidade.justica.gov.pt/")
         time.sleep(3)
@@ -199,6 +206,10 @@ def Government(code, driver, output_folder):
             step = class_names[1][4:]
             step += "N"
 
+        if step != "7A" and step != "7B":
+            if(contains_date(note)):
+                print("date is in the text!")
+
         info = {
             "code": code,
             "step": step,
@@ -206,7 +217,9 @@ def Government(code, driver, output_folder):
             "text": note,
             "station": OfficeStation.text,
         }
+        exception_counter = 0
     except unknownStepException as e:
+        exception_counter += 1
         info = {
             "code": code,
             "step": "unknown step detected",
@@ -215,12 +228,13 @@ def Government(code, driver, output_folder):
             "station": "",
         }
     except Exception as e:
+        exception_counter += 1
         info = {
             "code": code,
-            "step": "",
-            "step_title": "",
+            "step": "None",
+            "step_title": "None",
             "text": "Error",
-            "station": "",
+            "station": "None",
         }
 
     print("--------------------------------------------------------------------")
@@ -245,6 +259,7 @@ def keep_numbers_and_dash(s):
 
 
 with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file:
+    exception_counter = 0
     code = [code.strip("\n") for code in input_file.readlines()]
     for code in code:
         if code == 0 or code == "0":
@@ -252,9 +267,9 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
 
         code = keep_numbers_and_dash(code)
         # first attempt
-        result = Government(code, driver, output_folder)
+        result = Government(code, driver, output_folder, exception_counter)
 
-        if result["step"] != "":
+        if result["step"] != "None":
             with open(
                 output_folder + r"/output.csv", "a", encoding="utf-8", newline=""
             ) as file:
@@ -272,7 +287,7 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
         else:
             # second attempt
             second_result = Government(code, driver, output_folder)
-            if result["step"] != "":
+            if result["step"] != "None":
                 with open(
                     output_folder + r"/output.csv", "a", encoding="utf-8", newline=""
                 ) as file:
@@ -289,7 +304,36 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                 api(result)
 
             else:
-                # an error has accured, send email and write new line with error.
+                # an error has accrued, send email and write new line with error.
+                if exception_counter == 20:
+                    msg = MIMEMultipart()
+
+                    msg["From"] = "pythongovernmentscript@gmail.com"
+                    msg["To"] = ["danat@passportogo.co.il", "kfirn@passportogo.co.il"]
+                    msg["Subject"] = "something is wrong with the Portuguese government website☹️"
+
+                    body = "20 קודי ממשלה לא נסרקו ברצף. כנראה שאתר הממשלה נפל ☹️"
+                    msg.attach(MIMEText(body, "plain"))
+                    server.sendmail(
+                        "pythongovernmentscript@gmail.com",
+                        ["danat@passportogo.co.il", "kfirn@passportogo.co.il"],
+                        msg.as_string(),
+                    )
+
+                else:
+                    msg = MIMEMultipart()
+
+                    msg["From"] = "pythongovernmentscript@gmail.com"
+                    msg["To"] = ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"]
+                    msg["Subject"] = "invalid status code☹️"
+
+                    body = "היי זה הסקריפט ממשלה, שימו לב התיק בוטל בממשלה: " + code
+                    msg.attach(MIMEText(body, "plain"))
+                    server.sendmail(
+                        "pythongovernmentscript@gmail.com",
+                        ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"],
+                        msg.as_string(),
+                    )
                 try:
                     with open(
                         output_folder + r"/output.csv",
@@ -307,19 +351,7 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                                 result["station"],
                             ]
                         )
-                    msg = MIMEMultipart()
 
-                    msg["From"] = "pythongovernmentscript@gmail.com"
-                    msg["To"] = "almogpassportogo@gmail.com"
-                    msg["Subject"] = "error with fetching status"
-
-                    body = "error with fetching data for status code: " + code
-                    msg.attach(MIMEText(body, "plain"))
-                    server.sendmail(
-                        "pythongovernmentscript@gmail.com",
-                        "almogpassportogo@gmail.com",
-                        msg.as_string(),
-                    )
 
                 except Exception as e:
                     print("error with fetching data for status code: " + code)
@@ -327,3 +359,18 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                 continue
 
 # code_input = "9605-1349-2252"
+
+
+                    # msg = MIMEMultipart()
+
+                    # msg["From"] = "pythongovernmentscript@gmail.com"
+                    # msg["To"] = "almogpassportogo@gmail.com"
+                    # msg["Subject"] = "error with fetching status"
+
+                    # body = "error with fetching data for status code: " + code
+                    # msg.attach(MIMEText(body, "plain"))
+                    # server.sendmail(
+                    #     "pythongovernmentscript@gmail.com",
+                    #     "almogpassportogo@gmail.com",
+                    #     msg.as_string(),
+                    # )
