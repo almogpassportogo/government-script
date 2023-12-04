@@ -2,12 +2,13 @@ import base64
 import csv
 import json
 import os
+import re
 import smtplib
 import sys
 import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import re
+
 import requests
 import undetected_chromedriver as uc
 from selenium import webdriver
@@ -124,13 +125,13 @@ class unknownStepException(Exception):
 
 def contains_date(text):
     # Regular expression pattern for date in MM/DD/YYYY format
-    date_pattern = r'\b(?:0[1-9]|1[0-2])/(?:0[1-9]|[12][0-9]|3[01])/(?:19|20\d{2})\b'
+    date_pattern = r'\b(?:0[1-9]|[12][0-9]|3[01])/(?:0[1-9]|1[0-2])/(?:\d{4})\b'
     
-    # Search for the pattern in the text
+    # Search for the pattern in the string
     match = re.search(date_pattern, text)
-    
-    # Return True if a match is found, otherwise False
-    return match is not None
+
+    # Return True if a match is found, False otherwise
+    return bool(match)
 
 def Government(code, driver, output_folder, exception_counter):
     try:
@@ -162,6 +163,14 @@ def Government(code, driver, output_folder, exception_counter):
 
         OfficeStation = driver.find_element(
             By.CSS_SELECTOR, "body > div:first-child > div:nth-child(2)"
+        )
+        
+        name = driver.find_element(
+            By.CSS_SELECTOR, "body > div:first-child > div:nth-child(3)"
+        )
+        
+        number = driver.find_element(
+            By.CSS_SELECTOR, "body > div:first-child > div:nth-child(1) > div:nth-child(1)"
         )
 
         note = notes[0].text.casefold()
@@ -209,6 +218,19 @@ def Government(code, driver, output_folder, exception_counter):
         if step != "7A" and step != "7B":
             if(contains_date(note)):
                 print("date is in the text!")
+                msg = MIMEMultipart()
+                msg["From"] = "pythongovernmentscript@gmail.com"
+                toaddr = ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"]
+                msg["To"] = ', '.join(toaddr)
+                msg["Subject"] = "סקריפט ממשלה - התראת ביטול"
+
+                body = "היי זה הסקריפט ממשלה, שימו לב התיק קיבל התראת ביטול: " + code
+                msg.attach(MIMEText(body, "plain"))
+                server.sendmail(
+                    "pythongovernmentscript@gmail.com",
+                    ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"],
+                    msg.as_string(),
+                )
 
         info = {
             "code": code,
@@ -216,10 +238,11 @@ def Government(code, driver, output_folder, exception_counter):
             "step_title": step_text,
             "text": note,
             "station": OfficeStation.text,
+            "number": number.text[-12:],
+            "name": name.text
         }
         exception_counter = 0
     except unknownStepException as e:
-        exception_counter += 1
         info = {
             "code": code,
             "step": "unknown step detected",
@@ -286,7 +309,7 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
             api(result)
         else:
             # second attempt
-            second_result = Government(code, driver, output_folder)
+            second_result = Government(code, driver, output_folder, exception_counter)
             if result["step"] != "None":
                 with open(
                     output_folder + r"/output.csv", "a", encoding="utf-8", newline=""
@@ -309,7 +332,8 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                     msg = MIMEMultipart()
 
                     msg["From"] = "pythongovernmentscript@gmail.com"
-                    msg["To"] = ["danat@passportogo.co.il", "kfirn@passportogo.co.il"]
+                    toaddr = ["danat@passportogo.co.il", "kfirn@passportogo.co.il"]
+                    msg["To"] = ', '.join(toaddr)
                     msg["Subject"] = "something is wrong with the Portuguese government website☹️"
 
                     body = "20 קודי ממשלה לא נסרקו ברצף. כנראה שאתר הממשלה נפל ☹️"
@@ -319,12 +343,14 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                         ["danat@passportogo.co.il", "kfirn@passportogo.co.il"],
                         msg.as_string(),
                     )
+                    sys.exit("stopping script...")
 
                 else:
                     msg = MIMEMultipart()
 
                     msg["From"] = "pythongovernmentscript@gmail.com"
-                    msg["To"] = ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"]
+                    toaddr = ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"]
+                    msg["To"] = ', '.join(toaddr)
                     msg["Subject"] = "invalid status code☹️"
 
                     body = "היי זה הסקריפט ממשלה, שימו לב התיק בוטל בממשלה: " + code
@@ -357,20 +383,3 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                     print("error with fetching data for status code: " + code)
                     print("error with sending email")
                 continue
-
-# code_input = "9605-1349-2252"
-
-
-                    # msg = MIMEMultipart()
-
-                    # msg["From"] = "pythongovernmentscript@gmail.com"
-                    # msg["To"] = "almogpassportogo@gmail.com"
-                    # msg["Subject"] = "error with fetching status"
-
-                    # body = "error with fetching data for status code: " + code
-                    # msg.attach(MIMEText(body, "plain"))
-                    # server.sendmail(
-                    #     "pythongovernmentscript@gmail.com",
-                    #     "almogpassportogo@gmail.com",
-                    #     msg.as_string(),
-                    # )
