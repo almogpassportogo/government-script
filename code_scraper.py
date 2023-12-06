@@ -249,6 +249,8 @@ def Government(code, driver, output_folder, exception_counter):
             "step_title": "",
             "text": "Error",
             "station": "",
+            "number": "",
+            "name": ""
         }
     except Exception as e:
         exception_counter += 1
@@ -258,6 +260,8 @@ def Government(code, driver, output_folder, exception_counter):
             "step_title": "None",
             "text": "Error",
             "station": "None",
+            "number": "",
+            "name": ""
         }
 
     print("--------------------------------------------------------------------")
@@ -304,6 +308,9 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                         result["step_title"],
                         result["text"],
                         result["station"],
+                        result["number"],
+                        result["name"],
+                        
                     ]
                 )
             api(result)
@@ -322,6 +329,8 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                             result["step_title"],
                             result["text"],
                             result["station"],
+                            result["number"],
+                            result["name"],
                         ]
                     )
                 api(result)
