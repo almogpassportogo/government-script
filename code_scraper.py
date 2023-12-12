@@ -34,12 +34,12 @@ def api(data):
     try:
         # Send a POST request to the second webhook
         response_2 = requests.post(webhook_url_2, json=data)
-        print(response_2.content)
+        # print(response_2.content)
         # Check the response from the second webhook
-        if response_2.status_code == 200:
-            print("Webhook 2: Request sent successfully.")
-        else:
-            print("Webhook 2: Request failed with status code:", response_2.status_code)
+        # if response_2.status_code == 200:
+        #     print("Webhook 2: Request sent successfully.")
+        # else:
+        #     print("Webhook 2: Request failed with status code:", response_2.status_code)
     except Exception as e:
         print(e)
 
@@ -118,7 +118,6 @@ def start_browser():
 
     # driver.maximize_window()
     return driver
-
 
 class unknownStepException(Exception):
     pass
@@ -253,6 +252,27 @@ def Government(code, driver, output_folder, exception_counter):
             "name": ""
         }
     except Exception as e:
+
+        invalidCode = driver.find_element(
+            By.CSS_SELECTOR, "body > div:first-child > div:first-child"
+        )
+        if invalidCode.get_attribute("id") == "txtErro":
+            msg = MIMEMultipart()
+
+            msg["From"] = "pythongovernmentscript@gmail.com"
+            toaddr = ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"]
+
+            msg["To"] = ', '.join(toaddr)
+            msg["Subject"] = "invalid status code☹️"
+
+            body = "היי זה הסקריפט ממשלה, שימו לב התיק בוטל בממשלה: " + code
+            msg.attach(MIMEText(body, "plain"))
+            server.sendmail(
+                "pythongovernmentscript@gmail.com",
+                ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"],
+                msg.as_string(),
+            )
+
         exception_counter += 1
         info = {
             "code": code,
@@ -269,7 +289,6 @@ def Government(code, driver, output_folder, exception_counter):
     print("--------------------------------------------------------------------")
 
     return info
-
 
 input_file_path = input("Enter input file path : ")
 
@@ -309,8 +328,7 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                         result["text"],
                         result["station"],
                         result["number"],
-                        result["name"],
-                        
+                        result["name"],      
                     ]
                 )
             api(result)
@@ -353,22 +371,7 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                         msg.as_string(),
                     )
                     sys.exit("stopping script...")
-
-                else:
-                    msg = MIMEMultipart()
-
-                    msg["From"] = "pythongovernmentscript@gmail.com"
-                    toaddr = ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"]
-                    msg["To"] = ', '.join(toaddr)
-                    msg["Subject"] = "invalid status code☹️"
-
-                    body = "היי זה הסקריפט ממשלה, שימו לב התיק בוטל בממשלה: " + code + ", " + result["name"]
-                    msg.attach(MIMEText(body, "plain"))
-                    server.sendmail(
-                        "pythongovernmentscript@gmail.com",
-                        ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"],
-                        msg.as_string(),
-                    )
+                    
                 try:
                     with open(
                         output_folder + r"/output.csv",
