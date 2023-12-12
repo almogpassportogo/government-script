@@ -20,6 +20,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from twocaptcha import TwoCaptcha
 from webdriver_manager.chrome import ChromeDriverManager
+from datetime import datetime
+import pytz
 
 # pythongovernmentscript123! ---> password for email
 # ridx zani sdxa hxrb  ---> app password
@@ -305,9 +307,17 @@ def keep_numbers_and_dash(s):
 
 
 with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file:
+
     exception_counter = 0
     code = [code.strip("\n") for code in input_file.readlines()]
     for code in code:
+        # if the time is 21:00 pause the script for 10 hours, start again in 07:00
+        local_time = datetime.now(pytz.timezone('Asia/Jerusalem'))
+        local_hour = local_time.hour
+        print("Local Hour:", local_hour)
+        if local_hour == 21:
+            time.sleep(36000)
+
         if code == 0 or code == "0":
             continue
 
@@ -387,6 +397,8 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                                 result["step_title"],
                                 result["text"],
                                 result["station"],
+                                result["number"],
+                                result["name"],
                             ]
                         )
 
