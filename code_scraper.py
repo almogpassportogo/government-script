@@ -224,7 +224,7 @@ def Government(code, driver, output_folder, exception_counter):
                 msg["To"] = ', '.join(toaddr)
                 msg["Subject"] = "סקריפט ממשלה - התראת ביטול"
 
-                body = "היי זה הסקריפט ממשלה, שימו לב התיק קיבל התראת ביטול: " + code
+                body = "היי זה הסקריפט ממשלה, שימו לב התיק קיבל התראת ביטול: " + code + ", " + name.text
                 msg.attach(MIMEText(body, "plain"))
                 server.sendmail(
                     "pythongovernmentscript@gmail.com",
@@ -362,7 +362,7 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
                     msg["To"] = ', '.join(toaddr)
                     msg["Subject"] = "invalid status code☹️"
 
-                    body = "היי זה הסקריפט ממשלה, שימו לב התיק בוטל בממשלה: " + code
+                    body = "היי זה הסקריפט ממשלה, שימו לב התיק בוטל בממשלה: " + code + ", " + result["name"]
                     msg.attach(MIMEText(body, "plain"))
                     server.sendmail(
                         "pythongovernmentscript@gmail.com",
