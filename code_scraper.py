@@ -255,26 +255,31 @@ def Government(code, driver, output_folder, exception_counter):
         }
     except Exception as e:
 
-        invalidCode = driver.find_element(
+        try:
+            invalidCode = driver.find_element(
             By.CSS_SELECTOR, "body > div:first-child > div:first-child"
-        )
-        if invalidCode.get_attribute("id") == "txtErro":
-            msg = MIMEMultipart()
-
-            msg["From"] = "pythongovernmentscript@gmail.com"
-            toaddr = ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"]
-
-            msg["To"] = ', '.join(toaddr)
-            msg["Subject"] = "invalid status code☹️"
-
-            body = "היי זה הסקריפט ממשלה, שימו לב התיק בוטל בממשלה: " + code
-            msg.attach(MIMEText(body, "plain"))
-            server.sendmail(
-                "pythongovernmentscript@gmail.com",
-                ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"],
-                msg.as_string(),
             )
+            if invalidCode.get_attribute("id") == "txtErro":
+                msg = MIMEMultipart()
 
+                msg["From"] = "pythongovernmentscript@gmail.com"
+                toaddr = ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"]
+
+                msg["To"] = ', '.join(toaddr)
+                msg["Subject"] = "invalid status code☹️"
+
+                body = "היי זה הסקריפט ממשלה, שימו לב התיק בוטל בממשלה: " + code
+                msg.attach(MIMEText(body, "plain"))
+                server.sendmail(
+                    "pythongovernmentscript@gmail.com",
+                    ["danat@passportogo.co.il", "kfirn@passportogo.co.il", "vladimirt@passportogo.co.il"],
+                    msg.as_string(),
+                )
+        
+        except Exception as e:
+            print("could not solve captcha")
+
+        
         exception_counter += 1
         info = {
             "code": code,
