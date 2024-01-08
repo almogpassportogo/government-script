@@ -6,9 +6,11 @@ import re
 import smtplib
 import sys
 import time
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import pytz
 import requests
 import undetected_chromedriver as uc
 from selenium import webdriver
@@ -20,8 +22,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from twocaptcha import TwoCaptcha
 from webdriver_manager.chrome import ChromeDriverManager
-from datetime import datetime
-import pytz
 
 # pythongovernmentscript123! ---> password for email
 # ridx zani sdxa hxrb  ---> app password
@@ -320,8 +320,9 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
         local_time = datetime.now(pytz.timezone('Asia/Jerusalem'))
         local_hour = local_time.hour
         print("Local Hour:", local_hour)
-        if local_hour == 21:
-            time.sleep(36000)
+        inactive_hours = [22, 23, 0, 1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14, 15, 16]
+        if local_hour in inactive_hours:
+            time.sleep(3600)
 
         if code == 0 or code == "0":
             continue
