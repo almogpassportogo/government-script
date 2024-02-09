@@ -23,6 +23,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from twocaptcha import TwoCaptcha
 from webdriver_manager.chrome import ChromeDriverManager
 
+local_time = datetime.now(pytz.timezone('Asia/Jerusalem'))
+current_day = local_time.strftime('%A')
+print("current_day:", current_day)
+
 # pythongovernmentscript123! ---> password for email
 # ridx zani sdxa hxrb  ---> app password
 
@@ -318,9 +322,16 @@ with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file
     for code in code:
         # if the time is 21:00 pause the script for 10 hours, start again in 07:00
         local_time = datetime.now(pytz.timezone('Asia/Jerusalem'))
+        current_day = local_time.strftime('%A')
+        print("current_day:", current_day)
         local_hour = local_time.hour
         print("Local Hour:", local_hour)
         inactive_hours = [22, 23, 0, 1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14, 15, 16]
+        inactive_days = ["Friday", "Saturday"]
+        
+        if current_day in inactive_days:
+            time.sleep(86400)
+            
         if local_hour in inactive_hours:
             time.sleep(3600)
 
