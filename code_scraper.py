@@ -23,10 +23,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from twocaptcha import TwoCaptcha
 from webdriver_manager.chrome import ChromeDriverManager
 
-local_time = datetime.now(pytz.timezone('Asia/Jerusalem'))
-current_day = local_time.strftime('%A')
-print("current_day:", current_day)
-
 # pythongovernmentscript123! ---> password for email
 # ridx zani sdxa hxrb  ---> app password
 
