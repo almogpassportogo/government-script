@@ -29,6 +29,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 server = smtplib.SMTP("smtp.gmail.com", 587)
 server.starttls()
 
+api_key = "ad836997350d2f9ea35e60f0eb512567"
+solver = TwoCaptcha(api_key)
+balance = solver.balance()
+print("remaining Balance: ", balance)
+
 server.login("pythongovernmentscript@gmail.com", "ridx zani sdxa hxrb")
 
 def api(data):
@@ -54,6 +59,7 @@ def solve_captcha():
     api_key = "ad836997350d2f9ea35e60f0eb512567"
     solver = TwoCaptcha(api_key)
     balance = solver.balance()
+    print("remaining Balance: ", balance)
     try:
         result = solver.recaptcha(
             sitekey=sitekey, url="https://nacionalidade.justica.gov.pt/"
@@ -96,21 +102,21 @@ def start_browser():
     driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()), options=options
     )
-    time.sleep(2)
+    time.sleep(1)
     driver.get("https://nacionalidade.justica.gov.pt/")
     time.sleep(1)
     driver.switch_to.window(driver.window_handles[0])
     driver.get(
         "chrome-extension://ifibfemgeogfhoebkmokieepdoobkbpo/options/options.html"
     )
-    time.sleep(2)
+    time.sleep(1)
     driver.find_element("name", "apiKey").send_keys("ad836997350d2f9ea35e60f0eb512567")
-    time.sleep(2)
+    time.sleep(1)
     driver.find_element("xpath", "//button[text()='Login']").click()
     time.sleep(2)
     driver.switch_to.alert.accept()
     # self.driver.find_element("tag name","body").send_keys(Keys.ENTER)
-    time.sleep(2)
+    time.sleep(1)
     for e in driver.find_elements(
         "xpath", "//div[@class='switch']//input[contains(@name,'auto')]"
     )[:4]:
@@ -311,11 +317,11 @@ def keep_numbers_and_dash(s):
     return result
 
 
-with open(input_file_path, "r", encoding="cp437", errors="ignore") as input_file:
+with open(input_file_path, "r", encoding="utf-8-sig", errors="ignore") as input_file:
 
     exception_counter = 0
-    code = [code.strip("\n") for code in input_file.readlines()]
-    for code in code:
+    for code in input_file.readlines():
+        code = code.strip("\n")
         # if the time is 21:00 pause the script for 10 hours, start again in 07:00
         local_time = datetime.now(pytz.timezone('Asia/Jerusalem'))
         current_day = local_time.strftime('%A')
