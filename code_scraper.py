@@ -95,7 +95,7 @@ def start_browser():
     }
     options.add_experimental_option("prefs", prefs)
 
-    options.add_argument(r"--load-extension=" + os.getcwd() + r"\extensions\3.3.4_0_1")
+    # options.add_argument(r"--load-extension=" + os.getcwd() + r"\extensions\3.3.4_0_1")
     # options.add_argument(r"--load-extension=C:\Users\kk\Downloads\scrapit_2021\3.3.4_0")
     # input("load ext ")
     # use the derived Chrome class that handles prefs
@@ -171,6 +171,12 @@ def Government(code, driver, output_folder, exception_counter):
         OfficeStation = driver.find_element(
             By.CSS_SELECTOR, "body > div:first-child > div:nth-child(2)"
         )
+        station_text = OfficeStation.text
+        index_na = station_text.find('na')
+        if index_na != -1:
+            station = station_text[index_na + 3:]
+        else:
+            station = station_text
         
         name = driver.find_element(
             By.CSS_SELECTOR, "body > div:first-child > div:nth-child(3)"
@@ -244,7 +250,7 @@ def Government(code, driver, output_folder, exception_counter):
             "step": step,
             "step_title": step_text,
             "text": note,
-            "station": OfficeStation.text,
+            "station": station,
             "number": number.text[-12:],
             "name": name.text
         }
